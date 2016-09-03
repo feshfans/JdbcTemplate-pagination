@@ -2,6 +2,7 @@ package com.kang.pagination;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -12,12 +13,12 @@ public class Pagination  implements Serializable{
     /**
      * 每页大小
      */
-    protected int pageSize;
+    protected int pageSize=10;
 
     /**
      * 当前页,从1开始
      */
-    protected int currentPage;
+    protected int currentPage=1;
     /**
      * 排序组
      */
@@ -26,14 +27,14 @@ public class Pagination  implements Serializable{
     protected final List<SortBy> sorts=new ArrayList<SortBy>();
 
     public int getPageSize() {
-        if(pageSize<=0){
-            pageSize=10;
-        }
         return pageSize;
     }
 
     public void setPageSize(int pageSize) {
 
+        if(pageSize<1){
+            pageSize=10;
+        }
         this.pageSize = pageSize;
     }
 
@@ -45,9 +46,9 @@ public class Pagination  implements Serializable{
     }
 
     public void setCurrentPage(int currentPage) {
-        /*if(currentPage<1){
-            //throw IllegalArgumentException("当前页不能小于1");
-        }*/
+        if(currentPage<1){
+            currentPage=1;
+        }
         this.currentPage = currentPage;
     }
 
@@ -59,17 +60,16 @@ public class Pagination  implements Serializable{
         this.sortGroup = sortGroup;
     }
 
-    public void addSortBy(int priority,String colName,SortType sortType){
+    public void addSortBy(int priority,String colName,SortType sortType) throws IllegalArgumentException {
         if(colName==null||colName.trim().equals("")){
             return;
         }
-        SortBy sortBy=new SortBy();
-        sortBy.setColName(colName);
+        SortBy sortBy=new SortBy(colName);
         sortBy.setPriority(priority);
         sortBy.setSortType(sortType);
         sorts.add(sortBy);
     }
-    public void addSortBy(final List<SortBy> list){
+    public void addSortBy(final List<SortBy> list) throws IllegalArgumentException {
         if(list==null||list.size()==0){
             return;
         }
@@ -78,12 +78,13 @@ public class Pagination  implements Serializable{
         }
     }
 
-    public void addSortBy(SortBy sortBy){
+    public void addSortBy(SortBy sortBy) throws IllegalArgumentException {
         addSortBy(sortBy.getPriority(),sortBy.getColName(),sortBy.getSortType());
     }
 
     List<SortBy> getSorts() {
-        return sorts;
+        Collections.sort(sorts);
+        return Collections.unmodifiableList(sorts);
     }
 
 }
